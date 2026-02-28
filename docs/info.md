@@ -25,6 +25,6 @@ List external hardware used in your project (e.g. PMOD, LED display, etc), if an
 
 None
 
-## GenAI tools
+GenAI tools
 
 Used AI with creating testbenches using cocotb as well as some verilog code.
