@@ -1,20 +1,10 @@
-/*
- * 4-bit ALU - Tiny Tapeout HW6
- * SPDX-License-Identifier: Apache-2.0
- *
- * Operations: ADD, SUB, AND, OR
- * Pin mapping:
- *   ui_in[3:0]  = Operand A
- *   ui_in[7:4]  = Operand B
- *   uio_in[1:0] = Operation select (00=ADD, 01=SUB, 10=AND, 11=OR)
- *   uo_out[3:0] = Result
- *   uo_out[4]   = Carry/Borrow
- *   uo_out[5]   = Zero flag
- */
+// min/max unit - uses ALU (SUB) to compare A and B, outputs min or max
+// A on ui[3:0], B on ui[7:4], uio[0]=1 for min / 0 for max
+// output on uo[3:0], uo[4]=a_lt_b, uo[5]=a_eq_b
 
 `default_nettype none
 
-module tt_um_ethan_alu (
+module tt_um_ethan_minmax (
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
     input  wire [7:0] uio_in,
@@ -27,49 +17,29 @@ module tt_um_ethan_alu (
 
   wire [3:0] a = ui_in[3:0];
   wire [3:0] b = ui_in[7:4];
-  wire [1:0] op = uio_in[1:0];
+  wire min_select = uio_in[0];
 
-  wire [4:0] sum = a + b;
-  wire [4:0] diff = a - b;
+  wire [3:0] alu_result;
+  wire borrow;
+  wire zero;
 
-  reg [3:0] result;
-  reg carry;
-  reg zero;
+  alu_4bit alu (
+      .a(a),
+      .b(b),
+      .op(2'b01),
+      .result(alu_result),
+      .carry(borrow),
+      .zero(zero)
+  );
 
-  always @(*) begin
-    case (op)
-      2'b00: begin  // ADD
-        result = sum[3:0];
-        carry = sum[4];
-        zero = (sum[3:0] == 0);
-      end
-      2'b01: begin  // SUB
-        result = diff[3:0];
-        carry = diff[4];  // borrow when a < b
-        zero = (diff[3:0] == 0);
-      end
-      2'b10: begin  // AND
-        result = a & b;
-        carry = 0;
-        zero = ((a & b) == 0);
-      end
-      2'b11: begin  // OR
-        result = a | b;
-        carry = 0;
-        zero = ((a | b) == 0);
-      end
-      default: begin
-        result = 0;
-        carry = 0;
-        zero = 1;
-      end
-    endcase
-  end
+  // borrow = 1 means A < B -> min=A, max=B
+  // borrow = 0 means A >= B -> min=B, max=A
+  wire [3:0] out = borrow ? (min_select ? a : b) : (min_select ? b : a);
 
-  assign uo_out = {2'b0, zero, carry, result};
+  assign uo_out  = {2'b0, zero, borrow, out};
   assign uio_out = 0;
-  assign uio_oe = 0;
+  assign uio_oe  = 0;
 
-  wire _unused = &{ena, clk, rst_n, uio_in[7:2], 1'b0};
+  wire _unused = &{ena, clk, rst_n, uio_in[7:1], 1'b0};
 
 endmodule

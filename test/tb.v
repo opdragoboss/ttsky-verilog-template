@@ -1,17 +1,14 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* Testbench for 4-bit ALU - drives DUT and enables cocotb testing */
 module tb ();
 
-  // Dump the signals to a FST file. You can view it with gtkwave or surfer.
   initial begin
     $dumpfile("tb.fst");
     $dumpvars(0, tb);
     #1;
   end
 
-  // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;
   reg ena;
@@ -25,7 +22,7 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
-  tt_um_ethan_alu user_project (
+  tt_um_ethan_minmax user_project (
 `ifdef GL_TEST
       .VPWR(VPWR),
       .VGND(VGND),
