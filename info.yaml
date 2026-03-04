@@ -38,8 +38,8 @@ pinout:
   uo[1]: "Result[1]"
   uo[2]: "Result[2]"
   uo[3]: "Result[3]"
-  uo[4]: "A<B"
-  uo[5]: "A=B"
+  uo[4]: "A_LT_B"
+  uo[5]: "A_EQ_B"
   uo[6]: ""
   uo[7]: ""
 
