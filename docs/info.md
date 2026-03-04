@@ -21,4 +21,4 @@ None
 
 ## GenAI tools
 
-Used AI for help with creating testbenches using cocotb as well as verilog code.
+Used AI for help with creating testbenches using cocotb as well as some verilog code.
