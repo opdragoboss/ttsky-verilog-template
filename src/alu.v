@@ -1,5 +1,6 @@
 // 4-bit ALU submodule - used by min/max unit
 // op: 00=ADD 01=SUB 10=AND 11=OR
+// rewritten with continuous assignments to avoid latch inference and reduce gate overhead
 
 `default_nettype none
 
@@ -12,44 +13,20 @@ module alu_4bit (
     output wire       zero
 );
 
-  wire [4:0] sum = a + b;
+  wire [4:0] sum  = a + b;
   wire [4:0] diff = a - b;
+  wire [3:0] and_r = a & b;
+  wire [3:0] or_r  = a | b;
 
-  reg [3:0] r;
-  reg c, z;
+  assign result = (op == 2'b00) ? sum[3:0]  :
+                  (op == 2'b01) ? diff[3:0] :
+                  (op == 2'b10) ? and_r      :
+                                  or_r;
 
-  always @(*) begin
-    case (op)
-      2'b00: begin
-        r = sum[3:0];
-        c = sum[4];
-        z = (sum[3:0] == 0);
-      end
-      2'b01: begin
-        r = diff[3:0];
-        c = diff[4];
-        z = (diff[3:0] == 0);
-      end
-      2'b10: begin
-        r = a & b;
-        c = 0;
-        z = ((a & b) == 0);
-      end
-      2'b11: begin
-        r = a | b;
-        c = 0;
-        z = ((a | b) == 0);
-      end
-      default: begin
-        r = 0;
-        c = 0;
-        z = 1;
-      end
-    endcase
-  end
+  assign carry  = (op == 2'b00) ? sum[4]  :
+                  (op == 2'b01) ? diff[4] :
+                  1'b0;
 
-  assign result = r;
-  assign carry = c;
-  assign zero = z;
+  assign zero = (result == 4'b0);
 
 endmodule
