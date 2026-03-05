@@ -34,7 +34,9 @@ module tt_um_ethan_minmax (
 
   // borrow = 1 means A < B -> min=A, max=B
   // borrow = 0 means A >= B -> min=B, max=A
-  wire [3:0] out = borrow ? (min_select ? a : b) : (min_select ? b : a);
+  wire [3:0] min_val = borrow ? a : b;
+  wire [3:0] max_val = borrow ? b : a;
+  wire [3:0] out = min_select ? min_val : max_val;
 
   assign uo_out  = {2'b0, zero, borrow, out};
   assign uio_out = 0;
